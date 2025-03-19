@@ -150,7 +150,7 @@ struct TrashTalkMessageView: View {
     @State private var showingOptions = false
     
     var isCurrentUser: Bool {
-        return message.authorId == currentUserId
+        return message.author == currentUserId
     }
     
     var body: some View {
@@ -257,22 +257,23 @@ class TrashTalkViewModel: ObservableObject {
     }
     
     func refreshMessages() {
-        guard let leagueId = messages.first?.leagueId else { return }
+        guard let leagueId = messages.first?.league else { return }
         loadMessages(leagueId: leagueId)
     }
     
     func sendMessage(content: String) {
-        guard !content.isEmpty, let leagueId = messages.first?.leagueId else { return }
+        guard !content.isEmpty, let leagueId = messages.first?.league else { return }
         
         // In a real app, this would be an API call
         // For now, we'll simulate it
         
         let newMessage = TrashTalk(
             id: UUID().uuidString,
-            authorId: currentUserId,
+            author: currentUserId,
             authorName: "Current User",
             content: content,
-            leagueId: leagueId
+            league: leagueId,
+            isReply: false
         )
         
         // Simulate API call delay
@@ -311,7 +312,6 @@ class TrashTalkViewModel: ObservableObject {
         
         var updatedMessage = messages[index]
         updatedMessage.content = content
-        updatedMessage.isEdited = true
         
         // Update the message in the array
         messages[index] = updatedMessage
