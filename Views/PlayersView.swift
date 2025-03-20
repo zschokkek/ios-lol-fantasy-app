@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct PlayersView: View {
     @StateObject private var viewModel = PlayersViewModel()
@@ -290,7 +291,7 @@ class PlayersViewModel: ObservableObject {
     func loadPlayers() {
         isLoading = true
         
-        APIService.shared.getPlayers()
+        LoLFantasyAPIService.shared.getPlayers()
             .receive(on: DispatchQueue.main)
             .sink(
                 receiveCompletion: { [weak self] completion in

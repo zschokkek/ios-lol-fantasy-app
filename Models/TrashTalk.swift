@@ -4,7 +4,7 @@ struct TrashTalk: Identifiable, Codable {
     let id: String
     let author: String // User ID
     let authorName: String
-    let content: String
+    var content: String
     let league: String // League ID
     var teamId: String?
     var teamName: String?

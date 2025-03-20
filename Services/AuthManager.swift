@@ -9,24 +9,27 @@ class AuthManager: ObservableObject {
     private let tokenKey = "auth_token"
     private var cancellables = Set<AnyCancellable>()
     
+    // Get a reference to the API service
+    private let api = LoLFantasyAPIService.shared
+
     init() {
         // Check for existing token on launch
         if let token = UserDefaults.standard.string(forKey: tokenKey) {
-            APIService.shared.setAuthToken(token)
+            api.setAuthToken(token)
             isAuthenticated = true
             fetchCurrentUser()
         }
     }
     
     func login(token: String) {
-        APIService.shared.setAuthToken(token)
+        api.setAuthToken(token)
         UserDefaults.standard.set(token, forKey: tokenKey)
         isAuthenticated = true
         fetchCurrentUser()
     }
     
     func logout() {
-        APIService.shared.clearAuthToken()
+        api.clearAuthToken()
         UserDefaults.standard.removeObject(forKey: tokenKey)
         isAuthenticated = false
         currentUser = nil
@@ -49,7 +52,8 @@ class AuthManager: ObservableObject {
                 teams: [],
                 leagues: [],
                 friends: [],
-                pendingFriendRequests: []
+                pendingFriendRequests: [],
+                profileImageUrl: "https://example.com/avatars/default.jpg"
             )
             self?.isLoading = false
         }

@@ -1,0 +1,95 @@
+{
+  "" : {
+    "const-values" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/LoLFantasy-master.swiftconstvalues",
+    "dependencies" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/LoLFantasy-master.d",
+    "diagnostics" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/LoLFantasy-master.dia",
+    "emit-module-dependencies" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/LoLFantasy-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/LoLFantasy-master-emit-module.dia",
+    "swift-dependencies" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/LoLFantasy-master.swiftdeps"
+  },
+  "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/App/LoLFantasyApp.swift" : {
+    "index-unit-output-path" : "/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/LoLFantasyApp.o",
+    "llvm-bc" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/LoLFantasyApp.bc",
+    "object" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/LoLFantasyApp.o"
+  },
+  "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/Models/FantasyTeam.swift" : {
+    "index-unit-output-path" : "/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/FantasyTeam.o",
+    "llvm-bc" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/FantasyTeam.bc",
+    "object" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/FantasyTeam.o"
+  },
+  "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/Models/League.swift" : {
+    "index-unit-output-path" : "/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/League.o",
+    "llvm-bc" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/League.bc",
+    "object" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/League.o"
+  },
+  "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/Models/Player.swift" : {
+    "index-unit-output-path" : "/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/Player.o",
+    "llvm-bc" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/Player.bc",
+    "object" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/Player.o"
+  },
+  "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/Models/Team.swift" : {
+    "index-unit-output-path" : "/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/Team.o",
+    "llvm-bc" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/Team.bc",
+    "object" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/Team.o"
+  },
+  "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/Models/TrashTalk.swift" : {
+    "index-unit-output-path" : "/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/TrashTalk.o",
+    "llvm-bc" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/TrashTalk.bc",
+    "object" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/TrashTalk.o"
+  },
+  "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/Models/User.swift" : {
+    "index-unit-output-path" : "/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/User.o",
+    "llvm-bc" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/User.bc",
+    "object" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/User.o"
+  },
+  "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/Services/APIService.swift" : {
+    "index-unit-output-path" : "/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/APIService.o",
+    "llvm-bc" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/APIService.bc",
+    "object" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/APIService.o"
+  },
+  "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/Services/AuthManager.swift" : {
+    "index-unit-output-path" : "/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/AuthManager.o",
+    "llvm-bc" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/AuthManager.bc",
+    "object" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/AuthManager.o"
+  },
+  "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/Views/Authentication/LoginView.swift" : {
+    "index-unit-output-path" : "/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/LoginView.o",
+    "llvm-bc" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/LoginView.bc",
+    "object" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/LoginView.o"
+  },
+  "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/Views/Authentication/RegisterView.swift" : {
+    "index-unit-output-path" : "/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/RegisterView.o",
+    "llvm-bc" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/RegisterView.bc",
+    "object" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/RegisterView.o"
+  },
+  "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/Views/Home/HomeView.swift" : {
+    "index-unit-output-path" : "/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/HomeView.o",
+    "llvm-bc" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/HomeView.bc",
+    "object" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/HomeView.o"
+  },
+  "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/Views/LeagueDetailView.swift" : {
+    "index-unit-output-path" : "/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/LeagueDetailView.o",
+    "llvm-bc" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/LeagueDetailView.bc",
+    "object" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/LeagueDetailView.o"
+  },
+  "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/Views/MatchupDetailView.swift" : {
+    "index-unit-output-path" : "/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/MatchupDetailView.o",
+    "llvm-bc" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/MatchupDetailView.bc",
+    "object" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/MatchupDetailView.o"
+  },
+  "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/Views/PlayerDetailView.swift" : {
+    "index-unit-output-path" : "/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/PlayerDetailView.o",
+    "llvm-bc" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/PlayerDetailView.bc",
+    "object" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/PlayerDetailView.o"
+  },
+  "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/Views/PlayersView.swift" : {
+    "index-unit-output-path" : "/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/PlayersView.o",
+    "llvm-bc" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/PlayersView.bc",
+    "object" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/PlayersView.o"
+  },
+  "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/Views/TrashTalkView.swift" : {
+    "index-unit-output-path" : "/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/TrashTalkView.o",
+    "llvm-bc" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/TrashTalkView.bc",
+    "object" : "/Users/kylezschokke/Desktop/ios-lol-fantasy-app/build/LoLFantasy.build/Release-iphoneos/LoLFantasy.build/Objects-normal/arm64/TrashTalkView.o"
+  }
+}

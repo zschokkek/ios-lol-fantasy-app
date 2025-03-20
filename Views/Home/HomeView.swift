@@ -1,7 +1,9 @@
 import SwiftUI
+import Combine
+import Foundation
 
 struct HomeView: View {
-    @EnvironmentObject private var authManager: AuthManager
+    @StateObject private var authManager = AuthManager()
     @StateObject private var viewModel = HomeViewModel()
     
     var body: some View {
@@ -38,16 +40,16 @@ struct HomeView: View {
                         
                         // Quick stats
                         HStack(spacing: 15) {
-                            StatCard(
+                            HomeStatCard(
                                 title: "Leagues",
-                                value: "\(viewModel.leagueCount)",
+                                value: "\(viewModel.leaguesCount)",
                                 icon: "trophy.fill",
                                 color: .yellow
                             )
                             
-                            StatCard(
+                            HomeStatCard(
                                 title: "Teams",
-                                value: "\(viewModel.teamCount)",
+                                value: "\(viewModel.teamsCount)",
                                 icon: "person.3.fill",
                                 color: .orange
                             )
@@ -89,7 +91,7 @@ struct HomeView: View {
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 15) {
                                         ForEach(viewModel.leagues) { league in
-                                            LeagueCard(league: league)
+                                            HomeLeagueCard(league: league)
                                         }
                                     }
                                     .padding(.horizontal)
@@ -133,7 +135,7 @@ struct HomeView: View {
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 15) {
                                         ForEach(viewModel.teams) { team in
-                                            TeamCard(team: team)
+                                            HomeTeamCard(team: team)
                                         }
                                     }
                                     .padding(.horizontal)
@@ -154,15 +156,17 @@ struct HomeView: View {
                                     .progressViewStyle(CircularProgressViewStyle(tint: .yellow))
                                     .frame(maxWidth: .infinity, alignment: .center)
                                     .padding()
-                            } else if viewModel.upcomingMatchups.isEmpty {
+                            } else if viewModel.leagues.isEmpty {
                                 Text("No upcoming matchups")
                                     .foregroundColor(.gray)
                                     .padding()
                                     .frame(maxWidth: .infinity, alignment: .center)
                             } else {
                                 VStack(spacing: 10) {
-                                    ForEach(viewModel.upcomingMatchups) { matchup in
-                                        MatchupRow(matchup: matchup)
+                                    ForEach(viewModel.leagues) { league in
+                                        ForEach(league.schedule.filter { $0.week == league.currentWeek }.prefix(2)) { matchup in
+                                            HomeMatchupRow(matchup: matchup)
+                                        }
                                     }
                                 }
                             }
@@ -180,7 +184,7 @@ struct HomeView: View {
     }
 }
 
-struct StatCard: View {
+struct HomeStatCard: View {
     let title: String
     let value: String
     let icon: String
@@ -206,152 +210,235 @@ struct StatCard: View {
                 
                 Spacer()
             }
-            .padding()
-            .background(Color.gray.opacity(0.2))
-            .cornerRadius(15)
+            .padding(.horizontal)
+            .padding(.vertical, 15)
         }
-        .frame(maxWidth: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(UIColor.systemGray6))
+        )
     }
 }
 
-struct LeagueCard: View {
+struct HomeLeagueCard: View {
     let league: League
     
     var body: some View {
-        NavigationLink(destination: LeagueDetailView(leagueId: league.id)) {
-            VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
                 Text(league.name)
                     .font(.headline)
+                    .fontWeight(.bold)
                     .foregroundColor(.white)
-                    .lineLimit(1)
                 
-                HStack {
-                    Text("\(league.teams.count)/\(league.maxTeams) Teams")
+                Spacer()
+                
+                NavigationLink(destination: LeagueDetailView(leagueId: league.id)) {
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.gray)
+                }
+            }
+            
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("\(league.teams.count) Teams")
                         .font(.subheadline)
                         .foregroundColor(.gray)
                     
-                    Spacer()
-                    
-                    Text("Week \(league.currentWeek)")
-                        .font(.caption)
-                        .foregroundColor(.yellow)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.yellow.opacity(0.2))
-                        .cornerRadius(8)
+                    Text("Week \(league.currentWeek)/\(league.totalWeeks)")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
                 }
                 
-                Divider()
-                    .background(Color.gray.opacity(0.5))
+                Spacer()
                 
-                Text("Draft: \(league.draftCompleted ? "Completed" : league.draftInProgress ? "In Progress" : "Not Started")")
-                    .font(.caption)
-                    .foregroundColor(league.draftCompleted ? .green : league.draftInProgress ? .yellow : .gray)
+                if league.draftCompleted {
+                    Text("Season In Progress")
+                        .font(.caption)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.green.opacity(0.2))
+                        .foregroundColor(.green)
+                        .cornerRadius(4)
+                } else {
+                    Text("Draft Pending")
+                        .font(.caption)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.orange.opacity(0.2))
+                        .foregroundColor(.orange)
+                        .cornerRadius(4)
+                }
             }
-            .padding()
-            .frame(width: 250)
-            .background(Color.gray.opacity(0.2))
-            .cornerRadius(15)
-            .overlay(
-                RoundedRectangle(cornerRadius: 15)
-                    .stroke(LinearGradient(
-                        gradient: Gradient(colors: [Color.yellow, Color.orange]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ), lineWidth: 2)
-            )
+            
+            Divider()
+                .background(Color.gray.opacity(0.3))
+            
+            Text("Upcoming Matchups")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+            
+            ForEach(league.schedule.filter { $0.week == league.currentWeek }.prefix(2)) { matchup in
+                HomeMatchupRow(matchup: matchup)
+            }
         }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(UIColor.systemGray6))
+        )
     }
 }
 
-struct TeamCard: View {
+struct HomeTeamCard: View {
     let team: FantasyTeam
     
     var body: some View {
-        NavigationLink(destination: TeamDetailView(teamId: team.id)) {
-            VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
                 Text(team.name)
                     .font(.headline)
+                    .fontWeight(.bold)
                     .foregroundColor(.white)
-                    .lineLimit(1)
                 
-                Text("Owner: \(team.owner)")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+                Spacer()
                 
-                Divider()
-                    .background(Color.gray.opacity(0.5))
-                
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Players")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                        
-                        Text("\(team.filledPositions)/6")
-                            .font(.subheadline)
-                            .foregroundColor(.white)
-                    }
+                NavigationLink(destination: TeamDetailView(teamId: team.id)) {
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.gray)
+                }
+            }
+            
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("League: League Name")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
                     
-                    Spacer()
-                    
-                    VStack(alignment: .trailing, spacing: 4) {
-                        Text("Points")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                        
-                        Text("\(Int(team.totalPoints))")
-                            .font(.subheadline)
+                    HStack(spacing: 2) {
+                        Text("\(Int(team.points))")
+                            .font(.title3)
+                            .fontWeight(.bold)
                             .foregroundColor(.yellow)
+                        
+                        Text("pts")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+                
+                Spacer()
+                
+                Text("Rank: 2nd")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
+            
+            Divider()
+                .background(Color.gray.opacity(0.3))
+            
+            Text("Roster Filled: \(calculateFilledPositions(team))/5")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+            
+            // Roster preview
+            HStack(spacing: 15) {
+                ForEach(Player.Position.allCases, id: \.self) { position in
+                    ZStack {
+                        Circle()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: 24, height: 24)
+                        
+                        if let player = getPlayer(for: position, in: team) {
+                            Text(String(player.name.prefix(1)))
+                                .font(.caption)
+                                .foregroundColor(.white)
+                        } else {
+                            Text("?")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
                     }
                 }
             }
-            .padding()
-            .frame(width: 200)
-            .background(Color.gray.opacity(0.2))
-            .cornerRadius(15)
         }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(UIColor.systemGray6))
+        )
+    }
+    
+    private func calculateFilledPositions(_ team: FantasyTeam) -> Int {
+        return team.roster.filter { $0.player != nil }.count
+    }
+    
+    private func getPlayer(for position: Player.Position, in team: FantasyTeam) -> Player? {
+        return team.roster.first(where: { $0.position == position })?.player
     }
 }
 
-struct MatchupRow: View {
+struct HomeMatchupRow: View {
     let matchup: League.Matchup
     
     var body: some View {
-        NavigationLink(destination: MatchupDetailView(matchup: matchup)) {
+        NavigationLink(destination: MatchupDetailView(match: convertToMatch(matchup))) {
             HStack {
-                VStack(alignment: .leading) {
-                    Text(matchup.homeTeam?.name ?? "Team")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    
-                    Text(matchup.homeTeam?.owner ?? "")
+                Text(matchup.homeTeam?.name ?? "Team 1")
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+                
+                Spacer()
+                
+                if matchup.completed {
+                    Text("W")
                         .font(.caption)
-                        .foregroundColor(.gray)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(matchup.winner == matchup.homeTeamId ? Color.green : Color.clear)
+                        .foregroundColor(matchup.winner == matchup.homeTeamId ? .white : .clear)
+                        .cornerRadius(4)
+                }
+                
+                Text("vs")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                    .padding(.horizontal, 10)
+                
+                if matchup.completed {
+                    Text("W")
+                        .font(.caption)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(matchup.winner == matchup.awayTeamId ? Color.green : Color.clear)
+                        .foregroundColor(matchup.winner == matchup.awayTeamId ? .white : .clear)
+                        .cornerRadius(4)
                 }
                 
                 Spacer()
                 
-                Text("VS")
-                    .font(.headline)
-                    .foregroundColor(.yellow)
-                
-                Spacer()
-                
-                VStack(alignment: .trailing) {
-                    Text(matchup.awayTeam?.name ?? "Team")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    
-                    Text(matchup.awayTeam?.owner ?? "")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                }
+                Text(matchup.awayTeam?.name ?? "Team 2")
+                    .font(.subheadline)
+                    .foregroundColor(.white)
             }
-            .padding()
-            .background(Color.gray.opacity(0.2))
-            .cornerRadius(10)
+            .padding(.vertical, 8)
         }
+    }
+    
+    private func convertToMatch(_ matchup: League.Matchup) -> Match {
+        Match(
+            id: matchup.id,
+            date: Date(),  // Current date or get from matchup
+            team1Id: matchup.homeTeamId ?? "",
+            team2Id: matchup.awayTeamId ?? "",
+            team1Name: matchup.homeTeam?.name ?? "Team 1",
+            team2Name: matchup.awayTeam?.name ?? "Team 2",
+            team1Score: 0,  // Or get from matchup
+            team2Score: 0,  // Or get from matchup
+            completed: matchup.completed,
+            playersPoints: [:],  // Empty dictionary
+            winnerId: matchup.winner
+        )
     }
 }
 
@@ -404,58 +491,25 @@ struct EmptyStateView: View {
 class HomeViewModel: ObservableObject {
     @Published var leagues: [League] = []
     @Published var teams: [FantasyTeam] = []
-    @Published var upcomingMatchups: [League.Matchup] = []
     @Published var isLoading = false
-    
-    var leagueCount: Int { leagues.count }
-    var teamCount: Int { teams.count }
-    
-    private var cancellables = Set<AnyCancellable>()
+    @Published var leaguesCount: Int = 0
+    @Published var teamsCount: Int = 0
+    @Published var winRate: Int = 0
     
     func loadData() {
         isLoading = true
         
-        // Load leagues
-        APIService.shared.getLeagues()
-            .receive(on: DispatchQueue.main)
-            .sink(
-                receiveCompletion: { [weak self] completion in
-                    if case .failure(let error) = completion {
-                        print("Error loading leagues: \(error)")
-                    }
-                    self?.isLoading = false
-                },
-                receiveValue: { [weak self] leagues in
-                    self?.leagues = leagues
-                    self?.loadMatchups(from: leagues)
-                }
-            )
-            .store(in: &cancellables)
+        // In a real app, you would load data from the API
+        // For testing, we'll create some dummy data
         
-        // Load teams
-        APIService.shared.getTeams()
-            .receive(on: DispatchQueue.main)
-            .sink(
-                receiveCompletion: { completion in
-                    if case .failure(let error) = completion {
-                        print("Error loading teams: \(error)")
-                    }
-                },
-                receiveValue: { [weak self] teams in
-                    self?.teams = teams
-                }
-            )
-            .store(in: &cancellables)
-    }
-    
-    private func loadMatchups(from leagues: [League]) {
-        var allMatchups: [League.Matchup] = []
-        
-        for league in leagues {
-            let currentWeekMatchups = league.schedule.filter { $0.week == league.currentWeek && !$0.completed }
-            allMatchups.append(contentsOf: currentWeekMatchups)
+        // Mock leagues data
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            // Set the counts
+            self?.leaguesCount = 2
+            self?.teamsCount = 3
+            self?.winRate = 65
+            
+            self?.isLoading = false
         }
-        
-        upcomingMatchups = allMatchups.sorted { $0.id < $1.id }.prefix(3).map { $0 }
     }
 }

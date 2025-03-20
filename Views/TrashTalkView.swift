@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct TrashTalkView: View {
     let leagueId: String
@@ -47,7 +48,7 @@ struct TrashTalkView: View {
                     }
                     .padding()
                 }
-                .onChange(of: viewModel.messages) { _ in
+                .onChange(of: viewModel.messages.count) { _ in
                     if let lastId = viewModel.messages.last?.id {
                         scrollView.scrollTo(lastId, anchor: .bottom)
                     }
@@ -239,7 +240,7 @@ class TrashTalkViewModel: ObservableObject {
     func loadMessages(leagueId: String) {
         isLoading = true
         
-        APIService.shared.getTrashTalk(leagueId: leagueId)
+        LoLFantasyAPIService.shared.getTrashTalk()
             .receive(on: DispatchQueue.main)
             .sink(
                 receiveCompletion: { [weak self] completion in

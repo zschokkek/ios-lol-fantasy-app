@@ -9,6 +9,7 @@ struct User: Identifiable, Codable {
     let leagues: [String]  // League IDs
     let friends: [String]  // User IDs
     let pendingFriendRequests: [FriendRequest]
+    let profileImageUrl: String?
     
     struct FriendRequest: Identifiable, Codable {
         let id: String
@@ -20,7 +21,16 @@ struct User: Identifiable, Codable {
         enum Status: String, Codable {
             case pending
             case accepted
-            case rejected
+            
         }
     }
+}
+
+
+struct UserProfile: Identifiable, Codable {
+    let id: String
+    let teamsCount: Int
+    let leaguesCount: Int
+    let winRate: Double
+    let favoritePlayers: [Player]
 }

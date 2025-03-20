@@ -1,8 +1,9 @@
 import SwiftUI
+import Combine
 
 struct PlayerDetailView: View {
     let playerId: String
-    @StateObject private var viewModel = PlayerDetailViewModel()
+    @ObservedObject var viewModel: PlayerDetailViewModel  // ✅ Correct way
     
     var body: some View {
         ScrollView {
@@ -242,110 +243,110 @@ struct PlayerDetailView: View {
     
     private func positionColor(_ position: Player.Position) -> Color {
         switch position {
-        case .TOP:
+        case Player.Position.TOP:
             return .red
-        case .JUNGLE:
+        case Player.Position.JUNGLE:
             return .green
-        case .MID:
+        case Player.Position.MID:
             return .purple
-        case .ADC:
+        case Player.Position.ADC:
             return .orange
-        case .SUPPORT:
+        case Player.Position.SUPPORT:
             return .blue
-        case .FLEX:
+        case Player.Position.FLEX:
             return .gray
         }
     }
-}
-
-struct StatRow: View {
-    let label: String
-    let value: String
-    let icon: String
-    var detail: String? = nil
     
-    var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .foregroundColor(.yellow)
-                .frame(width: 24)
-            
-            Text(label)
-                .foregroundColor(.gray)
-            
-            Spacer()
-            
-            VStack(alignment: .trailing) {
-                Text(value)
-                    .font(.headline)
-                    .foregroundColor(.white)
+    struct StatRow: View {
+        let label: String
+        let value: String
+        let icon: String
+        var detail: String? = nil
+        
+        var body: some View {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(.yellow)
+                    .frame(width: 24)
                 
-                if let detail = detail {
-                    Text(detail)
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                Text(label)
+                    .foregroundColor(.gray)
+                
+                Spacer()
+                
+                VStack(alignment: .trailing) {
+                    Text(value)
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    
+                    if let detail = detail {
+                        Text(detail)
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
                 }
             }
+            .padding(.vertical, 5)
         }
-        .padding(.vertical, 5)
     }
-}
-
-class PlayerDetailViewModel: ObservableObject {
-    @Published var player: Player?
-    @Published var isLoading = false
-    @Published var isUpdating = false
-    @Published var isUpdatingImage = false
-    @Published var errorMessage = ""
-    @Published var imageUrl = ""
     
-    private var cancellables = Set<AnyCancellable>()
-    
-    func loadPlayer(id: String) {
-        isLoading = true
-        errorMessage = ""
+    class PlayerDetailViewModel: ObservableObject {
+        @Published var player: Player?
+        @Published var isLoading = false
+        @Published var isUpdating = false
+        @Published var isUpdatingImage = false
+        @Published var errorMessage = ""
+        @Published var imageUrl = ""
         
-        APIService.shared.getPlayerById(id)
-            .receive(on: DispatchQueue.main)
-            .sink(
-                receiveCompletion: { [weak self] completion in
-                    self?.isLoading = false
-                    
-                    if case .failure(let error) = completion {
-                        self?.errorMessage = "Error: \(error.localizedDescription)"
+        private var cancellables = Set<AnyCancellable>()
+        
+        func loadPlayer(id: String) {
+            isLoading = true
+            errorMessage = ""
+            
+            LoLFantasyAPIService.shared.getPlayerById(id)
+                .receive(on: DispatchQueue.main)
+                .sink(
+                    receiveCompletion: { [weak self] completion in
+                        self?.isLoading = false
+                        
+                        if case .failure(let error) = completion {
+                            self?.errorMessage = "Error: \(error.localizedDescription)"
+                        }
+                    },
+                    receiveValue: { [weak self] player in
+                        self?.player = player
                     }
-                },
-                receiveValue: { [weak self] player in
-                    self?.player = player
-                }
-            )
-            .store(in: &cancellables)
-    }
-    
-    func updateStats() {
-        guard let player = player else { return }
-        
-        isUpdating = true
-        
-        // This would be an API call to update player stats
-        // For now, we'll simulate it with a delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-            self?.isUpdating = false
-            self?.loadPlayer(id: player.id)
+                )
+                .store(in: &cancellables)
         }
-    }
-    
-    func updateImage() {
-        guard let player = player, !imageUrl.isEmpty else { return }
         
-        isUpdatingImage = true
+        func updateStats() {
+            guard let player = player else { return }
+            
+            isUpdating = true
+            
+            // This would be an API call to update player stats
+            // For now, we'll simulate it with a delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+                self?.isUpdating = false
+                self?.loadPlayer(id: player.id)
+            }
+        }
         
-        // This would be an API call to update player image
-        // For now, we'll simulate it with a delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-            self?.isUpdatingImage = false
-            self?.imageUrl = ""
-            self?.loadPlayer(id: player.id)
+        func updateImage() {
+            guard let player = player, !imageUrl.isEmpty else { return }
+            
+            isUpdatingImage = true
+            
+            // This would be an API call to update player image
+            // For now, we'll simulate it with a delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+                self?.isUpdatingImage = false
+                self?.imageUrl = ""
+                self?.loadPlayer(id: player.id)
+            }
         }
     }
 }

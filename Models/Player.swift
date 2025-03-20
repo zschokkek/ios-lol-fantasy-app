@@ -1,22 +1,18 @@
 import Foundation
 
-struct Player: Identifiable, Codable {
-    let id: String
+public struct Player: Identifiable, Codable {
+    public let id: String
     let name: String
-    let position: Position
+    public let position: Position
     let team: String
     let region: Region
     let imageUrl: String?
     let fantasyPoints: Double
     let stats: PlayerStats
     
-    enum Position: String, Codable, CaseIterable {
-        case TOP
-        case JUNGLE
-        case MID
-        case ADC
-        case SUPPORT
-        case FLEX
+    public enum Position: String, Codable, CaseIterable {
+        case TOP, JUNGLE, MID, ADC, SUPPORT, FLEX
+
     }
     
     enum Region: String, Codable, CaseIterable {
@@ -27,7 +23,7 @@ struct Player: Identifiable, Codable {
     }
 }
 
-struct PlayerStats: Codable {
+public struct PlayerStats: Codable {
     let gamesPlayed: Int
     let kills: Int
     let deaths: Int
