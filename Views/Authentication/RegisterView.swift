@@ -1,12 +1,12 @@
 import SwiftUI
 import Combine
 
-struct RegisterView: View {
+public struct RegisterView: View {
     @StateObject private var viewModel = RegisterViewModel()
     @EnvironmentObject private var authManager: AuthManager
     @Environment(\.presentationMode) var presentationMode
     
-    var body: some View {
+    public var body: some View {
         ZStack {
             Color.black.edgesIgnoringSafeArea(.all)
             

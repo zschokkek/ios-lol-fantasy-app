@@ -1,7 +1,7 @@
 import Foundation
 
-struct FantasyTeam: Identifiable, Codable {
-    let id: String
+public struct FantasyTeam: Identifiable, Codable {
+    public let id: String
     let name: String
     let ownerId: String
     let leagueId: String

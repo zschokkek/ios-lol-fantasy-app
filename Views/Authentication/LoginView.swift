@@ -10,12 +10,12 @@ fileprivate enum AuthError: Error {
     case unknown
 }
 
-struct LoginView: View {
+public struct LoginView: View {
     @StateObject private var viewModel = LoginViewModel()
     @EnvironmentObject private var authManager: AuthManager
     @State private var showingRegistration = false
     
-    var body: some View {
+    public var body: some View {
         NavigationView {
             ZStack {
                 Color.black.edgesIgnoringSafeArea(.all)

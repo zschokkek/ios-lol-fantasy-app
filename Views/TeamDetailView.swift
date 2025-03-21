@@ -1,143 +1,34 @@
 import SwiftUI
 import Combine
 
-struct TeamDetailView: View {
+
+public struct TeamDetailView: View {
     let teamId: String
     @StateObject private var viewModel = TeamDetailViewModel()
-    
-    var body: some View {
-        ZStack {
-            Color.black.edgesIgnoringSafeArea(.all)
-            
+
+    public var body: some View {
+        VStack {
             if viewModel.isLoading {
                 ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: .yellow))
-                    .scaleEffect(1.5)
             } else if let team = viewModel.team {
-                ScrollView {
-                    VStack(spacing: 25) {
-                        // Team header
-                        VStack(spacing: 15) {
-                            Text(team.name)
-                                .font(.largeTitle)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                            
-                            HStack {
-                                Text("Owner: Kyle")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                                
-                                Spacer()
-                                
-                                HStack {
-                                    Text("W")
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                    
-                                    Text("\(team.wins)")
-                                        .font(.headline)
-                                        .foregroundColor(.green)
-                                    
-                                    Text("-")
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                    
-                                    Text("L")
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                    
-                                    Text("\(team.losses)")
-                                        .font(.headline)
-                                        .foregroundColor(.red)
-                                }
-                            }
-                        }
-                        .padding()
-                        .background(Color.gray.opacity(0.1))
-                        .cornerRadius(15)
-                        
-
-                        // Roster
-                        VStack(alignment: .leading, spacing: 15) {
-                            Text("Roster")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                            
-                            ForEach(team.roster, id: \.position) { slot in
-                                RosterSlotRow(slot: slot)
-                            }
-                            
-                            Button(action: {
-                                // Edit roster action
-                            }) {
-                                HStack {
-                                    Spacer()
-                                    
-                                    Text("Edit Roster")
-                                        .font(.headline)
-                                        .foregroundColor(.black)
-                                    
-                                    Spacer()
-                                }
-                                .padding()
-                                .background(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [Color.yellow, Color.orange]),
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .cornerRadius(10)
-                            }
-                        }
-                        .padding()
-                        .background(Color.gray.opacity(0.1))
-                        .cornerRadius(15)
-                        
-                        // Recent matchups
-                        VStack(alignment: .leading, spacing: 15) {
-                            Text("Recent Matchups")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                            
-                            ForEach(team.recentMatchups, id: \.id) { matchup in
-                                NavigationLink(destination: MatchupDetailView(matchup: matchup)) {
-                                    MatchupRow(matchup: matchup, teamId: team.id)
-                                }
-                            }
-
-                        }
-                        .padding()
-                        .background(Color.gray.opacity(0.1))
-                        .cornerRadius(15)
-                    }
-                    .padding()
-                }
+                Text(team.name)
+                    .font(.largeTitle)
+                    .foregroundColor(.white)
+                
+                Text("Points: \(team.points)")
+                    .font(.title2)
+                    .foregroundColor(.yellow)
+                
+                // Additional details can be added here
             } else {
-                VStack(spacing: 20) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 60, height: 60)
-                        .foregroundColor(.yellow)
-                    
-                    Text("Team Not Found")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    
-                    Text("Unable to load team information")
-                        .font(.body)
-                        .foregroundColor(.gray)
-                }
+                Text("Team not found.")
+                    .foregroundColor(.red)
             }
         }
-        .navigationTitle("Team Details")
-        .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             viewModel.loadTeam(id: teamId)
         }
+        .padding()
     }
 }
 
@@ -335,7 +226,7 @@ struct MatchupRow: View {
     }
 }
 
-class TeamDetailViewModel: ObservableObject {
+public class TeamDetailViewModel: ObservableObject {
     @Published var team: FantasyTeam?
     @Published var isLoading = false
     private var cancellables = Set<AnyCancellable>()

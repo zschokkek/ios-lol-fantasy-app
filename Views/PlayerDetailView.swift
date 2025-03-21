@@ -1,7 +1,7 @@
 import SwiftUI
 import Combine
 
-struct PlayerDetailView: View {
+public struct PlayerDetailView: View {
     let playerId: String
     @ObservedObject var viewModel: PlayerDetailViewModel  // ✅ Correct way
     
@@ -291,7 +291,7 @@ struct PlayerDetailView: View {
         }
     }
     
-    class PlayerDetailViewModel: ObservableObject {
+    public class PlayerDetailViewModel: ObservableObject {
         @Published var player: Player?
         @Published var isLoading = false
         @Published var isUpdating = false

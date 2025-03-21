@@ -2,11 +2,11 @@ import SwiftUI
 import Combine
 import Foundation
 
-struct HomeView: View {
+public struct HomeView: View {
     @StateObject private var authManager = AuthManager()
     @StateObject private var viewModel = HomeViewModel()
     
-    var body: some View {
+    public var body: some View {
         NavigationView {
             ZStack {
                 Color.black.edgesIgnoringSafeArea(.all)

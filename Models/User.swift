@@ -1,7 +1,7 @@
 import Foundation
 
-struct User: Identifiable, Codable {
-    let id: String
+public struct User: Identifiable, Codable {
+    public let id: String
     let username: String
     let email: String
     let isAdmin: Bool

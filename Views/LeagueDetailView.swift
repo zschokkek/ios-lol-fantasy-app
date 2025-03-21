@@ -1,11 +1,11 @@
 import SwiftUI
 import Combine
 
-struct LeagueDetailView: View {
+public struct LeagueDetailView: View {
     let leagueId: String
     @StateObject private var viewModel = LeagueDetailViewModel()
     
-    var body: some View {
+    public var body: some View {
         ScrollView {
             VStack(spacing: 20) {
                 if viewModel.isLoading {

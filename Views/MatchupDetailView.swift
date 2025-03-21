@@ -33,10 +33,10 @@ struct Match {
     }
 }
 
-struct MatchupDetailView: View {
+public struct MatchupDetailView: View {
     let match: Match
     
-    var body: some View {
+    public var body: some View {
         ScrollView {
             VStack(spacing: 25) {
                 // Match header

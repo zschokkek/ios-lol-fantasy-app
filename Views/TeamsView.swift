@@ -1,12 +1,12 @@
 import SwiftUI
 import Combine
 
-struct TeamsView: View {
+public struct TeamsView: View {
     @StateObject private var viewModel = TeamsViewModel()
     @State private var searchText = ""
     @State private var showingCreateTeam = false
     
-    var body: some View {
+    public var body: some View {
         ZStack {
             Color.black.edgesIgnoringSafeArea(.all)
             

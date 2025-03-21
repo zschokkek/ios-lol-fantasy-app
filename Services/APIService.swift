@@ -1,7 +1,7 @@
 import Foundation
 import Combine
 
-class LoLFantasyAPIService {
+public class LoLFantasyAPIService {
     static let shared = LoLFantasyAPIService()
     
     private let baseURL = "https:/egbfantasy.com/api"

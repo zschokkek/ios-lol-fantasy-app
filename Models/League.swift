@@ -1,7 +1,7 @@
 import Foundation
 
-struct League: Identifiable, Codable {
-    let id: String
+public struct League: Identifiable, Codable {
+    public let id: String
     let name: String
     let status: String
     let ownerName: String
