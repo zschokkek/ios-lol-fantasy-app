@@ -158,7 +158,7 @@ class LeagueDetailViewModel: ObservableObject {
                 maxTeams: 10,
                 schedule: [],
                 playerPool: [],
-                regions: [.LCS, .LEC],
+                regions: [],
                 creatorId: "user1",
                 members: [],
                 draftCompleted: false,

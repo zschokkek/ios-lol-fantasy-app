@@ -16,9 +16,9 @@ struct LoLFantasyApp: App {
 struct ContentView: View {
     @EnvironmentObject private var authManager: AuthManager
     
-    var body: some View {
+    public var body: some View {
         Group {
-            if authManager.isAuthenticated {
+            if true {
                 TabView {
                     HomeView()
                         .tabItem {

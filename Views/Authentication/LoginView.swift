@@ -134,19 +134,70 @@ class LoginViewModel: ObservableObject {
         isLoading = true
         errorMessage = ""
         
-        // Simulate API call
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            // For testing purposes, always succeed with a fake token
-            self.isLoading = false
-            completion("token_123")
+        guard let url = URL(string: "https://egbfantasy.com/api/users/login") else {
+            errorMessage = "Invalid URL"
+            isLoading = false
+            return
         }
-    }
-}
+        
+        let requestBody: [String: String] = [
+            "username": username,
+            "password": password
+        ]
+        
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: requestBody) else {
+            errorMessage = "Failed to encode request"
+            isLoading = false
+            return
+        }
 
-struct LoginView_Previews: PreviewProvider {
-    static var previews: some View {
-        LoginView()
-            .environmentObject(AuthManager())
-            .preferredColorScheme(.dark)
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = jsonData
+        
+        URLSession.shared.dataTaskPublisher(for: request)
+            .tryMap { data, response -> String in
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    throw AuthError.unknown
+                }
+                
+                if httpResponse.statusCode == 200 {
+                    guard let token = try? JSONDecoder().decode([String: String].self, from: data)["token"] else {
+                        throw AuthError.unknown
+                    }
+                    return token
+                } else if httpResponse.statusCode == 401 {
+                    throw AuthError.unauthorized
+                } else {
+                    throw AuthError.httpError(httpResponse.statusCode)
+                }
+            }
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { completionResult in
+                self.isLoading = false
+                switch completionResult {
+                case .failure(let error):
+                    self.errorMessage = self.getErrorMessage(for: error)
+                case .finished:
+                    break
+                }
+            }, receiveValue: { token in
+                completion(token)
+            })
+            .store(in: &cancellables)
+    }
+    
+    private func getErrorMessage(for error: Error) -> String {
+        switch error {
+        case AuthError.unauthorized:
+            return "Invalid username or password"
+        case AuthError.httpError(let statusCode):
+            return "Server error: \(statusCode)"
+        case AuthError.unknown:
+            return "An unknown error occurred"
+        default:
+            return "Network error, please try again"
+        }
     }
 }

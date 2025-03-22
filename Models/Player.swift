@@ -1,40 +1,31 @@
 import Foundation
 
 public struct Player: Identifiable, Codable {
+    enum Position: String, CaseIterable, Codable {
+        case TOP, JUNGLE, MID, ADC, SUPPORT, FLEX
+    }
+
+    enum Region: String, CaseIterable, Codable {
+        case KOREA, AMERICAS, EUROPE, CHINA
+    }
+
+    struct Stats: Codable {
+        let kills: Int
+        let deaths: Int
+        let assists: Int
+        let cs: Int
+        let visionScore: Int
+        let baronKills: Int
+        let dragonKills: Int
+        let turretKills: Int
+        let gamesPlayed: Int
+    }
+
     public let id: String
     let name: String
-    public let position: Position
+    let position: Position
     let team: String
     let region: Region
-    let imageUrl: String?
+    let stats: Stats
     let fantasyPoints: Double
-    let stats: PlayerStats
-    
-    public enum Position: String, Codable, CaseIterable {
-        case TOP, JUNGLE, MID, ADC, SUPPORT, FLEX
-
-    }
-    
-    enum Region: String, Codable, CaseIterable {
-        case LCS
-        case LEC
-        case LPL
-        case LCK
-    }
-}
-
-public struct PlayerStats: Codable {
-    let gamesPlayed: Int
-    let kills: Int
-    let deaths: Int
-    let assists: Int
-    let cs: Int
-    let visionScore: Int
-    
-    var kda: Double {
-        if deaths == 0 {
-            return Double(kills + assists)
-        }
-        return Double(kills + assists) / Double(deaths)
-    }
 }

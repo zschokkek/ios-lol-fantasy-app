@@ -1,12 +1,12 @@
 import SwiftUI
 import Combine
 
-struct LeaguesView: View {
+public struct LeaguesView: View {
     @StateObject private var viewModel = LeaguesViewModel()
     @State private var showingCreateLeague = false
     @State private var searchText = ""
     
-    var body: some View {
+    public var body: some View {
         ZStack {
             Color.black.edgesIgnoringSafeArea(.all)
             

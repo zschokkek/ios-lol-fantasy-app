@@ -72,25 +72,6 @@ struct RosterSlotRow: View {
             if let player = slot.player {
                 HStack {
                     // Player image
-                    if let imageUrl = player.imageUrl, !imageUrl.isEmpty {
-                        AsyncImage(url: URL(string: imageUrl)) { image in
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } placeholder: {
-                            Image(systemName: "person.fill")
-                                .foregroundColor(.gray)
-                        }
-                        .frame(width: 30, height: 30)
-                        .background(Color.gray.opacity(0.2))
-                        .clipShape(Circle())
-                    } else {
-                        Image(systemName: "person.fill")
-                            .frame(width: 30, height: 30)
-                            .background(Color.gray.opacity(0.2))
-                            .clipShape(Circle())
-                            .foregroundColor(.gray)
-                    }
                     
                     Text(player.name)
                         .font(.subheadline)

@@ -1,34 +1,34 @@
-import SwiftUI
+import Foundation
 import Combine
+import SwiftUI
 
-struct PlayersView: View {
+
+public struct PlayersView: View {
     @StateObject private var viewModel = PlayersViewModel()
     @State private var searchText = ""
     @State private var selectedPosition: Player.Position? = nil
     @State private var selectedRegion: Player.Region? = nil
 
     public var body: some View {
-        NavigationView {
-            ZStack {
-                Color.black.edgesIgnoringSafeArea(.all)
-                
-                VStack(spacing: 0) {
-                    SearchAndFilterBar(
-                        searchText: $searchText,
-                        selectedPosition: $selectedPosition,
-                        selectedRegion: $selectedRegion,
-                        viewModel: viewModel
-                    )
+        ZStack {
+            Color.black.edgesIgnoringSafeArea(.all)
 
-                    ContentDisplay(
-                        isLoading: viewModel.isLoading,
-                        filteredPlayers: filteredPlayers
-                    )
-                }
+            VStack(spacing: 0) {
+                SearchAndFilterBar(
+                    searchText: $searchText,
+                    selectedPosition: $selectedPosition,
+                    selectedRegion: $selectedRegion,
+                    viewModel: viewModel
+                )
+
+                ContentDisplay(
+                    isLoading: viewModel.isLoading,
+                    filteredPlayers: filteredPlayers
+                )
             }
-            .navigationTitle("Players")
-            .onAppear { viewModel.loadPlayers() }
         }
+        .navigationTitle("Players")
+        .onAppear { viewModel.loadPlayers() }
     }
 
     private var filteredPlayers: [Player] {
@@ -154,6 +154,7 @@ struct FilterMenu: View {
     }
 }
 
+
 struct ContentDisplay: View {
     let isLoading: Bool
     let filteredPlayers: [Player]
@@ -163,16 +164,54 @@ struct ContentDisplay: View {
             LoadingView()
         } else if filteredPlayers.isEmpty {
             EmptyStateView(
-            title: "No Players Found",
-            message: "Try adjusting your filters or search terms",
-            buttonText: "Reset Filters",
-            action: {
-                searchText = ""
-            }
-        )
+                title: "No Players Found",
+                message: "Try adjusting your filters or search terms",
+                buttonText: "Reset Filters",
+                action: {}
+            )
         } else {
             PlayersListView(players: filteredPlayers)
         }
+    }
+}
+
+struct EmptyStateView: View {
+    let title: String
+    let message: String
+    let buttonText: String
+    let action: () -> Void
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "person.slash")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 60, height: 60)
+                .foregroundColor(.gray)
+
+            Text(title)
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+
+            Text(message)
+                .font(.body)
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
+            Button(action: action) {
+                Text(buttonText)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.yellow)
+                    .foregroundColor(.black)
+                    .cornerRadius(8)
+            }
+            .padding(.horizontal)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.black.edgesIgnoringSafeArea(.all))
     }
 }
 
@@ -194,7 +233,7 @@ struct PlayersListView: View {
                     NavigationLink(
                         destination: PlayerDetailView(
                             playerId: player.id,
-                            viewModel: PlayerDetailViewModel(playerId: player.id)
+                            viewModel: PlayerDetailViewModel()
                         )
                     ) {
                         PlayerRow(player: player)
@@ -205,46 +244,35 @@ struct PlayersListView: View {
         }
     }
 }
+
 struct PlayerRow: View {
     let player: Player
-    
+
     var body: some View {
         HStack(spacing: 15) {
-            // Player image
-            AsyncImage(url: URL(string: player.imageUrl ?? "")) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Image(systemName: "person.fill")
-                    .foregroundColor(.gray)
-            }
-            .frame(width: 50, height: 50)
-            .background(Color.gray.opacity(0.2))
-            .clipShape(Circle())
-            
+
             // Player info
             VStack(alignment: .leading, spacing: 4) {
                 Text(player.name)
                     .font(.headline)
                     .foregroundColor(.white)
-                
+
                 HStack {
                     Text(player.team)
                         .font(.subheadline)
                         .foregroundColor(.gray)
-                    
+
                     Text("•")
                         .foregroundColor(.gray)
-                    
+
                     Text(player.region.rawValue)
                         .font(.caption)
                         .foregroundColor(.yellow)
                 }
             }
-            
+
             Spacer()
-            
+
             // Position badge
             Text(player.position.rawValue)
                 .font(.caption)
@@ -254,13 +282,13 @@ struct PlayerRow: View {
                 .background(positionColor(player.position).opacity(0.2))
                 .foregroundColor(positionColor(player.position))
                 .cornerRadius(8)
-            
+
             // Points
             VStack(alignment: .trailing, spacing: 2) {
                 Text(String(format: "%.1f", player.fantasyPoints))
                     .font(.headline)
                     .foregroundColor(.yellow)
-                
+
                 Text("PTS")
                     .font(.caption2)
                     .foregroundColor(.gray)
@@ -271,92 +299,85 @@ struct PlayerRow: View {
         .background(Color.gray.opacity(0.1))
         .cornerRadius(10)
     }
-    
+
     private func positionColor(_ position: Player.Position) -> Color {
         switch position {
-        case .TOP:
-            return .red
-        case .JUNGLE:
-            return .green
-        case .MID:
-            return .purple
-        case .ADC:
-            return .orange
-        case .SUPPORT:
-            return .blue
-        case .FLEX:
-            return .gray
+        case .TOP: return .red
+        case .JUNGLE: return .green
+        case .MID: return .purple
+        case .ADC: return .orange
+        case .SUPPORT: return .blue
+        case .FLEX: return .gray
         }
     }
 }
-
+// MARK: - PlayersViewModel
 class PlayersViewModel: ObservableObject {
-    @Published var players: [Player] = []
+    @Published private(set) var players: [Player] = []
     @Published var isLoading = false
     @Published var sortBy: SortOption = .pointsDesc
-    
+
     enum SortOption {
-        case nameAsc
-        case nameDesc
-        case pointsAsc
-        case pointsDesc
+        case nameAsc, nameDesc, pointsAsc, pointsDesc
     }
-    
+
+    private var originalPlayers: [Player] = []  // Store unfiltered data
     private var cancellables = Set<AnyCancellable>()
-    
+
     func loadPlayers() {
         isLoading = true
-        
-        LoLFantasyAPIService.shared.getPlayers()
+
+        guard let url = URL(string: "https://egbfantasy.com/api/players/") else {
+            print("❌ Invalid URL")
+            isLoading = false
+            return
+        }
+
+        URLSession.shared.dataTaskPublisher(for: url)
+            .tryMap { data, response -> Data in
+                guard let httpResponse = response as? HTTPURLResponse,
+                      (200...299).contains(httpResponse.statusCode) else {
+                    throw URLError(.badServerResponse)
+                }
+                return data
+            }
+            .decode(type: [Player].self, decoder: JSONDecoder())
             .receive(on: DispatchQueue.main)
             .sink(
                 receiveCompletion: { [weak self] completion in
                     self?.isLoading = false
-                    
                     if case .failure(let error) = completion {
-                        print("Error loading players: \(error)")
+                        print("❌ Error loading players: \(error.localizedDescription)")
                     }
                 },
                 receiveValue: { [weak self] players in
-                    self?.players = players
+                    self?.originalPlayers = players
+                    self?.applySorting()
                 }
             )
             .store(in: &cancellables)
     }
-    
-    func getFilteredAndSortedPlayers(searchText: String, position: Player.Position?, region: Player.Region?) -> [Player] {
-        var filteredPlayers = players
-        
-        // Apply search filter
-        if !searchText.isEmpty {
-            filteredPlayers = filteredPlayers.filter { player in
-                player.name.lowercased().contains(searchText.lowercased()) ||
-                player.team.lowercased().contains(searchText.lowercased())
-            }
-        }
-        
-        // Apply position filter
-        if let position = position {
-            filteredPlayers = filteredPlayers.filter { $0.position == position }
-        }
-        
-        // Apply region filter
-        if let region = region {
-            filteredPlayers = filteredPlayers.filter { $0.region == region }
-        }
-        
-        // Apply sorting
+
+    // Improved sorting logic
+    private func applySorting() {
         switch sortBy {
         case .nameAsc:
-            filteredPlayers.sort { $0.name < $1.name }
+            players = originalPlayers.sorted { $0.name < $1.name }
         case .nameDesc:
-            filteredPlayers.sort { $0.name > $1.name }
+            players = originalPlayers.sorted { $0.name > $1.name }
         case .pointsAsc:
-            filteredPlayers.sort { $0.fantasyPoints < $1.fantasyPoints }
+            players = originalPlayers.sorted { $0.fantasyPoints < $1.fantasyPoints }
         case .pointsDesc:
-            filteredPlayers.sort { $0.fantasyPoints > $1.fantasyPoints }
+            players = originalPlayers.sorted { $0.fantasyPoints > $1.fantasyPoints }
         }
-        
-        return filteredPlayers
+    }
+
+    func getFilteredAndSortedPlayers(searchText: String, position: Player.Position?, region: Player.Region?) -> [Player] {
+        return players.filter { player in
+            (searchText.isEmpty || player.name.lowercased().contains(searchText.lowercased()) ||
+             player.team.lowercased().contains(searchText.lowercased())) &&
+            (position == nil || player.position == position) &&
+            (region == nil || player.region == region)
+        }
     }
 }
