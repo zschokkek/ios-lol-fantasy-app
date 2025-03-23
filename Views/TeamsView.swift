@@ -144,7 +144,7 @@ struct TeamCard: View {
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                 
-                Text("League: \(team.leagueName)")
+                Text("League: \(team.name)")
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
@@ -158,7 +158,7 @@ struct TeamCard: View {
     // Extracted Score Section
     private var scoreView: some View {
         HStack(spacing: 2) {
-            Text("\(team.wins)")
+            Text("5")
                 .font(.headline)
                 .foregroundColor(.green)
             
@@ -166,7 +166,7 @@ struct TeamCard: View {
                 .font(.headline)
                 .foregroundColor(.gray)
             
-            Text("\(team.losses)")
+            Text("4")
                 .font(.headline)
                 .foregroundColor(.red)
         }
@@ -183,21 +183,21 @@ struct TeamCard: View {
                 .font(.caption)
                 .foregroundColor(.gray)
             
-            HStack {
-                ForEach(team.players, id: \.id) { player in
-                    VStack(spacing: 4) {
-                        Text(player.name.split(separator: " ").last ?? "")
-                            .font(.caption)
-                            .lineLimit(1)
-                            .foregroundColor(.white)
-                        
-                        Text(player.position.rawValue)
-                            .font(.caption2)
-                            .foregroundColor(.gray)
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-            }
+//            HStack {
+//                ForEach(team.players, id: \.id) { player in
+//                    VStack(spacing: 4) {
+//                        Text(player.name.split(separator: " ").last ?? "")
+//                            .font(.caption)
+//                            .lineLimit(1)
+//                            .foregroundColor(.white)
+//                        
+//                        Text(player.position.rawValue)
+//                            .font(.caption2)
+//                            .foregroundColor(.gray)
+//                    }
+//                    .frame(maxWidth: .infinity)
+//                }
+//            }
         }
         .padding(8)
         .background(Color.gray.opacity(0.2))
@@ -219,82 +219,17 @@ struct CreateTeamView: View {
                 
                 ScrollView {
                     VStack(spacing: 20) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Team Name")
-                                .font(.headline)
-                                .foregroundColor(.gray)
-                            
-                            TextField("Enter team name", text: $teamName)
-                                .padding()
-                                .background(Color.gray.opacity(0.2))
-                                .cornerRadius(8)
-                                .foregroundColor(.white)
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Select League")
-                                .font(.headline)
-                                .foregroundColor(.gray)
-                            
-                            if availableLeagues.isEmpty {
-                                Text("No available leagues found")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                                    .padding()
-                                    .frame(maxWidth: .infinity, alignment: .center)
-                                    .background(Color.gray.opacity(0.2))
-                                    .cornerRadius(8)
-                            } else {
-                                ForEach(availableLeagues, id: \.id) { league in
-                                    Button(action: {
-                                        selectedLeagueId = league.id
-                                    }) {
-                                        HStack {
-                                            VStack(alignment: .leading, spacing: 4) {
-                                                Text(league.name)
-                                                    .font(.headline)
-                                                    .foregroundColor(.white)
-                                                
-                                                Text("Teams: \(league.teamCount)/\(league.maxTeams)")
-                                                    .font(.caption)
-                                                    .foregroundColor(.gray)
-                                            }
-                                            
-                                            Spacer()
-                                            
-                                            if selectedLeagueId == league.id {
-                                                Image(systemName: "checkmark.circle.fill")
-                                                    .foregroundColor(.green)
-                                            }
-                                        }
-                                        .padding()
-                                        .background(selectedLeagueId == league.id ? Color.gray.opacity(0.4) : Color.gray.opacity(0.2))
-                                        .cornerRadius(8)
-                                    }
-                                }
-                            }
-                        }
-                        
-                        Button(action: {
-                            createTeam()
-                        }) {
-                            HStack {
-                                if isLoading {
-                                    ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle(tint: .black))
-                                } else {
-                                    Text("Create Team")
-                                        .font(.headline)
-                                        .foregroundColor(.black)
-                                }
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.yellow)
-                            .cornerRadius(10)
-                        }
-                        .disabled(teamName.isEmpty || selectedLeagueId == nil || isLoading)
-                        .padding(.top, 10)
+                        TeamNameInput(teamName: $teamName)
+                        LeagueSelectionView(
+                            availableLeagues: availableLeagues,
+                            selectedLeagueId: $selectedLeagueId
+                        )
+                        CreateTeamButton(
+                            teamName: teamName,
+                            selectedLeagueId: selectedLeagueId,
+                            isLoading: isLoading,
+                            createTeam: createTeam
+                        )
                     }
                     .padding()
                 }
@@ -314,11 +249,90 @@ struct CreateTeamView: View {
             }
         }
     }
-    
+}
+
+// MARK: - Team Name Input
+struct TeamNameInput: View {
+    @Binding var teamName: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Team Name")
+                .font(.headline)
+                .foregroundColor(.gray)
+            
+            TextField("Enter team name", text: $teamName)
+                .padding()
+                .background(Color.gray.opacity(0.2))
+                .cornerRadius(8)
+                .foregroundColor(.white)
+        }
+    }
+}
+
+// MARK: - League Selection
+struct LeagueSelectionView: View {
+    let availableLeagues: [League]
+    @Binding var selectedLeagueId: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Select League")
+                .font(.headline)
+                .foregroundColor(.gray)
+            
+            if availableLeagues.isEmpty {
+                Text("No available leagues found")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .background(Color.gray.opacity(0.2))
+                    .cornerRadius(8)
+            } else {
+                ForEach(availableLeagues, id: \.id) { league in
+                    LeagueCard(league: league)
+                }
+            }
+        }
+    }
+}
+
+
+// MARK: - Create Team Button
+struct CreateTeamButton: View {
+    let teamName: String
+    let selectedLeagueId: String?
+    let isLoading: Bool
+    let createTeam: () -> Void
+
+    var body: some View {
+        Button(action: createTeam) {
+            HStack {
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .black))
+                } else {
+                    Text("Create Team")
+                        .font(.headline)
+                        .foregroundColor(.black)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(Color.yellow)
+            .cornerRadius(10)
+        }
+        .disabled(teamName.isEmpty || selectedLeagueId == nil || isLoading)
+        .padding(.top, 10)
+    }
+}
+
+// MARK: - Functions
+extension CreateTeamView {
     private func loadAvailableLeagues() {
         // In a real app, this would load leagues from the API
         // For now, we'll simulate with dummy data
-        
     }
     
     private func createTeam() {

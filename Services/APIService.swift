@@ -179,7 +179,98 @@ public class LoLFantasyAPIService {
     }
     // MARK: - Players
     
+    // MARK: - Leagues
+    func fetchLeagues() -> AnyPublisher<[League], Error> {
+        let url = URL(string: "\(baseURL)/leagues")!
 
+        return URLSession.shared.dataTaskPublisher(for: url)
+            .tryMap { data, response in
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    throw URLError(.badServerResponse)
+                }
+
+                // 🚨 Debugging step: Confirm data length and content type
+                print("🔎 Data Length: \(data.count) bytes")
+                if let httpResponse = response as? HTTPURLResponse {
+                    print("🔎 Content-Type: \(httpResponse.allHeaderFields["Content-Type"] ?? "Unknown")")
+                }
+
+                // 🚨 JSONSerialization to inspect structure before decoding
+                do {
+                    let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
+                    print("🔎 JSON Object Structure: \(jsonObject)")
+                } catch {
+                    print("❌ JSON Serialization Error: \(error)")
+                }
+
+                let decoder = JSONDecoder()
+                decoder.keyDecodingStrategy = .convertFromSnakeCase
+                
+                // 🚨 Add this to confirm decoding errors
+                do {
+                    let leagues = try decoder.decode([League].self, from: data)
+                    print("✅ Successfully decoded leagues: \(leagues.count)")
+                    return leagues
+                } catch {
+                    print("❌ Decoding Error: \(error)")
+                    throw error
+                }
+            }
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+    }
+
+
+   func createLeague(leagueData: [String: Any], completion: @escaping (Result<League, Error>) -> Void) {
+       let url = URL(string: "\(baseURL)/leagues")!
+       var request = URLRequest(url: url)
+       request.httpMethod = "POST"
+       request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+       request.httpBody = try? JSONSerialization.data(withJSONObject: leagueData)
+
+       URLSession.shared.dataTask(with: request) { data, response, error in
+           if let error = error {
+               completion(.failure(error))
+               return
+           }
+           guard let data = data else {
+               completion(.failure(NSError(domain: "No data", code: -1)))
+               return
+           }
+           do {
+               let newLeague = try JSONDecoder().decode(League.self, from: data)
+               completion(.success(newLeague))
+           } catch {
+               completion(.failure(error))
+           }
+       }.resume()
+   }
+
+   func joinLeague(leagueId: String, teamName: String, completion: @escaping (Result<League, Error>) -> Void) {
+       let url = URL(string: "\(baseURL)/leagues/\(leagueId)/join")!
+       var request = URLRequest(url: url)
+       request.httpMethod = "POST"
+       request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+       let body: [String: Any] = ["teamName": teamName]
+       request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
+       URLSession.shared.dataTask(with: request) { data, response, error in
+           if let error = error {
+               completion(.failure(error))
+               return
+           }
+           guard let data = data else {
+               completion(.failure(NSError(domain: "No data", code: -1)))
+               return
+           }
+           do {
+               let updatedLeague = try JSONDecoder().decode(League.self, from: data)
+               completion(.success(updatedLeague))
+           } catch {
+               completion(.failure(error))
+           }
+       }.resume()
+   }
     
     // MARK: - Teams
     

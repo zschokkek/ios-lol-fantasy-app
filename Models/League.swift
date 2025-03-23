@@ -1,25 +1,21 @@
 import Foundation
 
-public struct League: Identifiable, Codable {
-    public let id: String
+public struct League: Identifiable, Decodable {
+    public var id: String
+    let creatorId: String?
     let name: String
-    let status: String
-    let ownerName: String
-    let teams: [FantasyTeam]
-    let currentWeek: Int
-    let totalWeeks: Int
-    let teamCount: Int
+    let description: String?
+    let teams: [FantasyTeam]?
     let maxTeams: Int
-    let schedule: [Matchup]
-    let playerPool: [Player]
-    let regions: [Player.Region]
-    let creatorId: String
-    let members: [User]
-    let draftCompleted: Bool
-    let draftInProgress: Bool
-    let draftOrder: [String]  // Team IDs in draft order
-
+    let schedule: [String]?
+    let currentWeek: Int
+    let standings: [Standing]?
+    let playerPool: [String]?
+    let memberIds: [String]?
+    let isPublic: Bool
+    let regions: [String]?
     
+    // Adding Matchup struct for compatibility with existing code
     struct Matchup: Identifiable, Codable {
         let id: String
         let week: Int
@@ -29,26 +25,54 @@ public struct League: Identifiable, Codable {
         let awayTeam: FantasyTeam?
         let completed: Bool
         let winner: String?
+        
+        enum CodingKeys: String, CodingKey {
+            case id, week, homeTeamId, awayTeamId, homeTeam, awayTeam, completed, winner
+        }
     }
     
-    var isPublic: Bool {
-        // For backward compatibility
-        return true
+    struct Standing: Codable {
+        let team: FantasyTeam
+        let wins: Int
+        let losses: Int
+        let totalPoints: Int
+        
+        enum CodingKeys: String, CodingKey {
+            case team, wins, losses, totalPoints
+        }
     }
     
-    var ownerId: String {
-        // For backward compatibility
-        return creatorId
-    }
-    
-    var matches: [Matchup] {
-        // For backward compatibility
-        return schedule
-    }
-    
-    // Add CodingKeys to specifically handle optional or backward compatibility properties
     enum CodingKeys: String, CodingKey {
-        case id, name, status, teams, currentWeek, totalWeeks, schedule, playerPool, regions, ownerName
-        case creatorId, members, draftCompleted, draftInProgress, draftOrder, teamCount, maxTeams
+        case id
+        case creatorId
+        case name
+        case description
+        case teams
+        case maxTeams
+        case schedule
+        case currentWeek
+        case standings
+        case playerPool
+        case memberIds
+        case isPublic
+        case regions
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        id = try container.decode(String.self, forKey: .id)
+        creatorId = try container.decodeIfPresent(String.self, forKey: .creatorId)
+        name = try container.decode(String.self, forKey: .name)
+        description = try container.decodeIfPresent(String.self, forKey: .description)
+        teams = try container.decodeIfPresent([FantasyTeam].self, forKey: .teams)
+        maxTeams = try container.decodeIfPresent(Int.self, forKey: .maxTeams) ?? 0
+        schedule = try container.decodeIfPresent([String].self, forKey: .schedule)
+        currentWeek = try container.decodeIfPresent(Int.self, forKey: .currentWeek) ?? 1
+        standings = try container.decodeIfPresent([Standing].self, forKey: .standings)
+        playerPool = try container.decodeIfPresent([String].self, forKey: .playerPool)
+        memberIds = try container.decodeIfPresent([String].self, forKey: .memberIds)
+        isPublic = try container.decodeIfPresent(Bool.self, forKey: .isPublic) ?? false
+        regions = try container.decodeIfPresent([String].self, forKey: .regions)
     }
 }

@@ -15,7 +15,7 @@ public struct TeamDetailView: View {
                     .font(.largeTitle)
                     .foregroundColor(.white)
                 
-                Text("Points: \(team.points)")
+                Text("Points: 55")
                     .font(.title2)
                     .foregroundColor(.yellow)
                 

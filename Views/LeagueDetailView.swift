@@ -4,97 +4,16 @@ import Combine
 public struct LeagueDetailView: View {
     let leagueId: String
     @StateObject private var viewModel = LeagueDetailViewModel()
-    
+
     public var body: some View {
         ScrollView {
             VStack(spacing: 20) {
                 if viewModel.isLoading {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .yellow))
-                        .scaleEffect(1.5)
-                        .padding(.top, 100)
+                    LoadingView()
                 } else if let league = viewModel.league {
-                    // League header
-                    VStack(spacing: 10) {
-                        Text(league.name)
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
-                        HStack(spacing: 15) {
-                            // Teams badge
-                            HStack {
-                                Image(systemName: "person.3.fill")
-                                    .foregroundColor(.yellow)
-                                Text("\(league.teams.count) Teams")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                            }
-                            
-                            Divider()
-                                .background(Color.gray.opacity(0.5))
-                                .frame(height: 20)
-                            
-                            // Week badge
-                            HStack {
-                                Image(systemName: "calendar")
-                                    .foregroundColor(.yellow)
-                                Text("Week \(league.currentWeek)/\(league.totalWeeks)")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                            }
-                        }
-                    }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.gray.opacity(0.2))
-                    .cornerRadius(15)
-                    
-                    // Teams section
-                    VStack(alignment: .leading, spacing: 15) {
-                        Text("Teams")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
-                        if league.teams.isEmpty {
-                            Text("No teams have joined this league yet")
-                                .foregroundColor(.gray)
-                                .padding()
-                                .frame(maxWidth: .infinity, alignment: .center)
-                        } else {
-                            LazyVGrid(columns: [GridItem(.adaptive(minimum: 160))], spacing: 15) {
-                                ForEach(league.teams) { team in
-                                    LeagueTeamCard(team: team)
-                                }
-                            }
-                        }
-                    }
-                    .padding()
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(15)
-                    
+                    LeagueContentView(league: league)
                 } else {
-                    // Error or league not found
-                    VStack(spacing: 20) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 60, height: 60)
-                            .foregroundColor(.yellow)
-                            .padding()
-                        
-                        Text("League Not Found")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
-                        Text("We couldn't find the league you're looking for.")
-                            .font(.body)
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.top, 50)
+                    ErrorView(message: "Error")
                 }
             }
             .padding()
@@ -108,6 +27,103 @@ public struct LeagueDetailView: View {
     }
 }
 
+// MARK: - Subviews
+
+// League Content View
+struct LeagueContentView: View {
+    let league: League
+
+    var body: some View {
+        VStack(spacing: 20) {
+            LeagueHeaderView(league: league)
+            TeamsSectionView(teams: league.teams ?? [])
+        }
+    }
+}
+
+// League Header
+struct LeagueHeaderView: View {
+    let league: League
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Text(league.name)
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            
+            HStack(spacing: 15) {
+                TeamsBadge(count: league.teams?.count ?? 0)  
+                Divider().frame(height: 20)
+                WeekBadge(currentWeek: league.currentWeek, totalWeeks: 14)
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(Color.gray.opacity(0.2))
+        .cornerRadius(15)
+    }
+}
+
+struct TeamsBadge: View {
+    let count: Int
+
+    var body: some View {
+        HStack {
+            Image(systemName: "person.3.fill")
+                .foregroundColor(.yellow)
+            Text("\(count) Teams")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+        }
+    }
+}
+
+struct WeekBadge: View {
+    let currentWeek: Int
+    let totalWeeks: Int
+
+    var body: some View {
+        HStack {
+            Image(systemName: "calendar")
+                .foregroundColor(.yellow)
+            Text("Week \(currentWeek)/\(totalWeeks)")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+        }
+    }
+}
+
+// Teams Section
+struct TeamsSectionView: View {
+    let teams: [FantasyTeam]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 15) {
+            Text("Teams")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            
+            if teams.isEmpty {
+                Text("No teams have joined this league yet")
+                    .foregroundColor(.gray)
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .center)
+            } else {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 160))], spacing: 15) {
+                    ForEach(teams) { team in
+                        LeagueTeamCard(team: team)
+                    }
+                }
+            }
+        }
+        .padding()
+        .background(Color.gray.opacity(0.1))
+        .cornerRadius(15)
+    }
+}
+
 struct LeagueTeamCard: View {
     let team: FantasyTeam
     
@@ -117,14 +133,14 @@ struct LeagueTeamCard: View {
                 .font(.headline)
                 .foregroundColor(.white)
             
-            Text("\(team.points, specifier: "%.1f") Points")
+            Text("\(team.totalPoints , specifier: "%.1f") Points")
                 .font(.caption)
                 .foregroundColor(.yellow)
             
             Divider()
                 .background(Color.gray.opacity(0.3))
             
-            Text("Roster: \(team.roster.count) players")
+            Text("Roster: 6 players")
                 .font(.caption)
                 .foregroundColor(.gray)
         }
@@ -142,33 +158,5 @@ class LeagueDetailViewModel: ObservableObject {
     func loadLeague(id: String) {
         isLoading = true
         
-        // This would be a call to an API to get the league details
-        // For now, we'll create a mock league
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            // Create a mock league for preview purposes
-            let mockLeague = League(
-                id: id,
-                name: "Test League",
-                status: "Active",
-                ownerName: "Kyle",
-                teams: [],
-                currentWeek: 1,
-                totalWeeks: 10,
-                teamCount: 0,
-                maxTeams: 10,
-                schedule: [],
-                playerPool: [],
-                regions: [],
-                creatorId: "user1",
-                members: [],
-                draftCompleted: false,
-                draftInProgress: false,
-                draftOrder: []
-
-            )
-            
-            self?.league = mockLeague
-            self?.isLoading = false
-        }
-    }
+    }   // add more to api service to get individual league data
 }
