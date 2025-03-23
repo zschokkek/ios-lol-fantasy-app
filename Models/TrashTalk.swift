@@ -1,7 +1,7 @@
 import Foundation
 
-struct TrashTalk: Identifiable, Codable {
-    let id: String
+public struct TrashTalk: Identifiable, Codable {
+    public let id: String
     let author: String // User ID
     let authorName: String
     var content: String
@@ -63,7 +63,7 @@ struct TrashTalk: Identifiable, Codable {
     }
     
     // Custom decoder to handle date formatting
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         id = try container.decode(String.self, forKey: .id)
@@ -97,7 +97,7 @@ struct TrashTalk: Identifiable, Codable {
     }
     
     // Custom encoder to handle date formatting
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         try container.encode(id, forKey: .id)

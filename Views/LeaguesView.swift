@@ -334,26 +334,110 @@ struct CreateLeagueView: View {
     }
 }
 
+
 class LeaguesViewModel: ObservableObject {
     @Published var leagues: [League] = []
+    @Published var userLeagues: [League] = []
+    @Published var selectedLeague: League?
     @Published var isLoading = false
+    @Published var errorMessage: String?
+
     private var cancellables = Set<AnyCancellable>()
-    
+
+    // MARK: - API Calls
+
     func loadLeagues() {
+        fetchLeagues(endpoint: "/leagues", assignTo: \.leagues)
+    }
+
+    func loadUserLeagues() {
+        fetchLeagues(endpoint: "/leagues/user", assignTo: \.userLeagues)
+    }
+
+    func loadLeagueById(id: String, refresh: Bool = false) {
+        let endpoint = refresh ? "/leagues/\(id)?refresh=true" : "/leagues/\(id)"
+        fetchLeagueById(endpoint: endpoint)
+    }
+
+    func createLeague(leagueData: [String: Any], completion: @escaping (Bool) -> Void) {
         isLoading = true
-        
-        LoLFantasyAPIService.shared.getLeagues()
+
+        LoLFantasyAPIService.shared.createLeague(leagueData: leagueData)
+            .receive(on: DispatchQueue.main)
+            .sink(
+                receiveCompletion: { [weak self] completionStatus in
+                    self?.isLoading = false
+                    switch completionStatus {
+                    case .failure(let error):
+                        self?.errorMessage = "Failed to create league: \(error.localizedDescription)"
+                        completion(false)
+                    case .finished:
+                        completion(true)
+                    }
+                },
+                receiveValue: { [weak self] newLeague in
+                    self?.leagues.append(newLeague)
+                }
+            )
+            .store(in: &cancellables)
+    }
+
+    func joinLeague(leagueId: String, teamName: String, completion: @escaping (Bool) -> Void) {
+        isLoading = true
+
+        LoLFantasyAPIService.shared.joinLeague(leagueId: leagueId, teamName: teamName)
+            .receive(on: DispatchQueue.main)
+            .sink(
+                receiveCompletion: { [weak self] completionStatus in
+                    self?.isLoading = false
+                    switch completionStatus {
+                    case .failure(let error):
+                        self?.errorMessage = "Failed to join league: \(error.localizedDescription)"
+                        completion(false)
+                    case .finished:
+                        completion(true)
+                    }
+                },
+                receiveValue: { [weak self] updatedLeague in
+                    self?.selectedLeague = updatedLeague
+                }
+            )
+            .store(in: &cancellables)
+    }
+
+    // MARK: - Helper Methods
+
+    private func fetchLeagues(endpoint: String, assignTo keyPath: ReferenceWritableKeyPath<LeaguesViewModel, [League]>) {
+        isLoading = true
+        LoLFantasyAPIService.shared.getLeagues(endpoint: endpoint)
             .receive(on: DispatchQueue.main)
             .sink(
                 receiveCompletion: { [weak self] completion in
                     self?.isLoading = false
-                    
                     if case .failure(let error) = completion {
-                        print("Error loading leagues: \(error)")
+                        self?.errorMessage = "Error loading leagues: \(error.localizedDescription)"
                     }
                 },
                 receiveValue: { [weak self] leagues in
-                    self?.leagues = leagues
+                    self?[keyPath: keyPath] = leagues
+                }
+            )
+            .store(in: &cancellables)
+    }
+
+    private func fetchLeagueById(endpoint: String) {
+        isLoading = true
+        LoLFantasyAPIService.shared.getLeagueById(endpoint: endpoint)
+            .receive(on: DispatchQueue.main)
+            .sink(
+                receiveCompletion: { [weak self] completion in
+                    self?.isLoading = false
+                    if case .failure(let error) = completion {
+                        self?.errorMessage = "Error loading league details: \(error.localizedDescription)"
+                    }
+                },
+                receiveValue: { [weak self] league in
+                    self?.selectedLeague = league
                 }
             )
             .store(in: &cancellables)

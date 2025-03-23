@@ -2,7 +2,6 @@ import Foundation
 import Combine
 import SwiftUI
 
-
 public struct PlayersView: View {
     @StateObject private var viewModel = PlayersViewModel()
     @State private var searchText = ""
@@ -324,41 +323,30 @@ class PlayersViewModel: ObservableObject {
     private var originalPlayers: [Player] = []  // Store unfiltered data
     private var cancellables = Set<AnyCancellable>()
 
+    // MARK: - Load Players from API
     func loadPlayers() {
         isLoading = true
 
-        guard let url = URL(string: "https://egbfantasy.com/api/players/") else {
-            print("❌ Invalid URL")
-            isLoading = false
-            return
-        }
-
-        URLSession.shared.dataTaskPublisher(for: url)
-            .tryMap { data, response -> Data in
-                guard let httpResponse = response as? HTTPURLResponse,
-                      (200...299).contains(httpResponse.statusCode) else {
-                    throw URLError(.badServerResponse)
-                }
-                return data
-            }
-            .decode(type: [Player].self, decoder: JSONDecoder())
+        LoLFantasyAPIService.shared.getPlayers()
             .receive(on: DispatchQueue.main)
             .sink(
                 receiveCompletion: { [weak self] completion in
                     self?.isLoading = false
                     if case .failure(let error) = completion {
-                        print("❌ Error loading players: \(error.localizedDescription)")
+                        print("❌ Error loading stats: \(error.localizedDescription)")
                     }
                 },
-                receiveValue: { [weak self] players in
-                    self?.originalPlayers = players
-                    self?.applySorting()
+                receiveValue: { [weak self] info in
+                    guard let self = self else { return }
+                    print("✅ Players fetched: \(info.count)")  // Debugging line
+                    self.originalPlayers = info.map { Player(from: $0) }  // 🔥 FIXED: Mapping data to `Player`
+                    self.applySorting()
                 }
             )
             .store(in: &cancellables)
     }
 
-    // Improved sorting logic
+    // MARK: - Improved Sorting Logic
     private func applySorting() {
         switch sortBy {
         case .nameAsc:
@@ -372,8 +360,9 @@ class PlayersViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Filter and Sort Players
     func getFilteredAndSortedPlayers(searchText: String, position: Player.Position?, region: Player.Region?) -> [Player] {
-        return players.filter { player in
+        return originalPlayers.filter { player in
             (searchText.isEmpty || player.name.lowercased().contains(searchText.lowercased()) ||
              player.team.lowercased().contains(searchText.lowercased())) &&
             (position == nil || player.position == position) &&
@@ -381,3 +370,4 @@ class PlayersViewModel: ObservableObject {
         }
     }
 }
+

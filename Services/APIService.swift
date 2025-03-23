@@ -17,6 +17,51 @@ public class LoLFantasyAPIService {
         self.authToken = nil
     }
     
+    
+    // MARK: - League API Methods
+    func getLeagues(endpoint: String) -> AnyPublisher<[League], Error> {
+        fetchData(endpoint: endpoint)
+    }
+
+    func getLeagueById(endpoint: String) -> AnyPublisher<League, Error> {
+        fetchData(endpoint: endpoint)
+    }
+
+    func createLeague(leagueData: [String: Any]) -> AnyPublisher<League, Error> {
+        fetchData(endpoint: "/leagues", method: "POST", body: leagueData)
+    }
+
+    func joinLeague(leagueId: String, teamName: String) -> AnyPublisher<League, Error> {
+        fetchData(endpoint: "/leagues/\(leagueId)/join", method: "POST", body: ["teamName": teamName])
+    }
+    
+    
+    
+// MARK: - Players API Calls
+    func getPlayers() -> AnyPublisher<[Player.PlayerInfo], Error> {
+        let url = URL(string: "\(baseURL)/players")!
+
+        return URLSession.shared.dataTaskPublisher(for: url)
+            .map { data, _ in
+                print("sRaw JSON data: \(String(data: data, encoding: .utf8) ?? "Invalid data")")
+                return data
+            }
+            .decode(type: [Player.PlayerInfo].self, decoder: JSONDecoder())  // Changed from Player.Stats to PlayerInfo
+            .eraseToAnyPublisher()
+    }
+    
+    
+    func getPlayerById(_ id: String) -> AnyPublisher<Player, Error> {
+        let request = createRequest("/players/\(id)")
+
+        return URLSession.shared.dataTaskPublisher(for: request)
+            .map { $0.data }
+            .decode(type: Player.self, decoder: JSONDecoder())
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+    }
+    
+    // MARK: - Core API Request
     private func createRequest(_ path: String, method: String = "GET", body: [String: Any]? = nil) -> URLRequest {
         let url = URL(string: baseURL + path)!
         var request = URLRequest(url: url)
@@ -40,6 +85,26 @@ public class LoLFantasyAPIService {
         
         return request
     }
+    // MARK: - Core API Request
+    private func fetchData<T: Decodable>(endpoint: String, method: String = "GET", body: [String: Any]? = nil) -> AnyPublisher<T, Error> {
+        guard let url = URL(string: baseURL + endpoint) else {
+            return Fail(error: URLError(.badURL)).eraseToAnyPublisher()
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+
+        if let body = body {
+            request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        }
+
+        return URLSession.shared.dataTaskPublisher(for: request)
+            .map(\.data)
+            .decode(type: T.self, decoder: JSONDecoder())
+            .eraseToAnyPublisher()
+    }
+
     
     // MARK: - Authentication
     
@@ -114,25 +179,7 @@ public class LoLFantasyAPIService {
     }
     // MARK: - Players
     
-    func getPlayers() -> AnyPublisher<[Player], Error> {
-        let request = createRequest("/players")
-        
-        return URLSession.shared.dataTaskPublisher(for: request)
-            .map { $0.data }
-            .decode(type: [Player].self, decoder: JSONDecoder())
-            .receive(on: DispatchQueue.main)
-            .eraseToAnyPublisher()
-    }
-    
-    func getPlayerById(_ id: String) -> AnyPublisher<Player, Error> {
-        let request = createRequest("/players/\(id)")
 
-        return URLSession.shared.dataTaskPublisher(for: request)
-            .map { $0.data }
-            .decode(type: Player.self, decoder: JSONDecoder())
-            .receive(on: DispatchQueue.main)
-            .eraseToAnyPublisher()
-    }
     
     // MARK: - Teams
     
